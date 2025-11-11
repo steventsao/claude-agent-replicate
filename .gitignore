@@ -1,0 +1,55 @@
+# Environment variables
+.env
+
+# Cog
+.cog/
+
+# Model cache
+model-cache/
+outputs/
+
+# Storage directory (configurable via STORAGE_DIR env var)
+data/
+results/
+
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+venv/
+env/
+
+# OS
+.DS_Store
+Thumbs.db
+*.local.json
+
+# Logs
+logs/
+
+# Frontend build artefacts
+dist/
+node_modules/
+
+# Tauri build output
+src-tauri/target/
+*.app
+*.dmg
+*.msi
+*.AppImage
+
+# Test artifacts
+test-results/
+playwright-report/
+
+# Backup files
+*.backup
+
+evals/
+
+# Keep .claude/hooks but ignore other .claude dirs
+.claude/skills/
+.claude/logs/

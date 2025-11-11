@@ -1,0 +1,44 @@
+{
+  "name": "claude-agent-replicate-api",
+  "version": "1.0.0",
+  "description": "experiment with replicate APIs with Claude Agent",
+  "main": "index.js",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
+    "test": "playwright test",
+    "test:ui": "playwright test --ui",
+    "backend": "python3 backend/server.py",
+    "dev:stack": "concurrently -k \"npm run backend\" \"npm run dev\"",
+    "dev:pm2": "pm2 start ecosystem.config.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/steventsao/claude-agent-replicate-api.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/steventsao/claude-agent-replicate-api/issues"
+  },
+  "homepage": "https://github.com/steventsao/claude-agent-replicate-api#readme",
+  "dependencies": {
+    "@reduxjs/toolkit": "^2.10.1",
+    "@vitejs/plugin-react": "^5.1.0",
+    "dotenv": "^17.2.3",
+    "react": "^19.2.0",
+    "react-dom": "^19.2.0",
+    "react-redux": "^9.2.0",
+    "react-router-dom": "^7.9.5",
+    "reactflow": "^11.11.4",
+    "vite": "^7.2.1"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.56.1",
+    "@redux-devtools/extension": "^3.3.0",
+    "concurrently": "^9.1.2",
+    "playwright": "^1.56.1"
+  }
+}
