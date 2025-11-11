@@ -4,7 +4,7 @@ Interactive canvas UI for generating AI images using Claude Agent SDK and Replic
 
 ## Motivation
 
-Exploring loading context progressively via Skills on API platforms like Replicate where tool discovery is an issue. I use code act pattern with Claude Agent SDK. Controlling scope of this prototype here so it feels similar to those in https://github.com/anthropics/claude-agent-sdk-demos/
+Exploring loading context progressively via Skills on API platforms like Replicate where tools and model descriptions can be heavy on token usage. I use code act pattern to allow agent to express model composition more flexibly with Claude Agent SDK. 
 
 ## Overview
 
@@ -48,13 +48,10 @@ Access at http://localhost:5173
 
 ## Features
 
-- Chat-based image generation using Replicate models
+- Agent-driven image generation using Replicate models
 - Draggable canvas with React Flow
-- Real-time WebSocket communication
-- Redux state management
+- WebSocket communication
 
-## Stack
+$$ Reference
 
-- React 19, Redux Toolkit, React Flow, Vite
-- Python 3.12, Claude Agent SDK, Replicate API
-- WebSockets, PM2
+- https://github.com/anthropics/claude-agent-sdk-demos/
