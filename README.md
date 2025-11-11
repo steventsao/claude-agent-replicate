@@ -52,6 +52,6 @@ Access at http://localhost:5173
 - Draggable canvas with React Flow
 - WebSocket communication
 
-$$ Reference
+## Reference
 
 - https://github.com/anthropics/claude-agent-sdk-demos/
