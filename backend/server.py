@@ -74,6 +74,8 @@ class CORSHTTPRequestHandler(SimpleHTTPRequestHandler):
             self._handle_delete_image()
         elif self.path == '/api/spaces/delete':
             self._handle_delete_space()
+        elif self.path == '/api/spaces/move-image':
+            self._handle_move_image()
         else:
             self.send_error(404)
 
@@ -221,6 +223,43 @@ class CORSHTTPRequestHandler(SimpleHTTPRequestHandler):
 
         except Exception as e:
             self.send_error(500, f'Delete failed: {str(e)}')
+
+    def _handle_move_image(self):
+        """Handle moving an image to a space."""
+        from storage_utils import move_image_to_space
+
+        try:
+            content_length = int(self.headers.get('content-length', 0))
+            body = self.rfile.read(content_length)
+            data = json.loads(body)
+
+            source_path = data.get('source_path')
+            space_id = data.get('space_id')
+
+            if not source_path or not space_id:
+                self.send_error(400, 'Missing source_path or space_id')
+                return
+
+            new_path = move_image_to_space(source_path, space_id)
+
+            if not new_path:
+                self.send_error(404, f'Source file not found: {source_path}')
+                return
+
+            # Build new URL
+            new_url = f"http://localhost:{self.server.server_port}/{new_path}"
+
+            self.send_response(200)
+            self.send_header('Content-Type', 'application/json')
+            self.end_headers()
+            self.wfile.write(json.dumps({
+                'success': True,
+                'new_url': new_url,
+                'new_path': new_path
+            }).encode())
+
+        except Exception as e:
+            self.send_error(500, f'Move failed: {str(e)}')
 
     def do_GET(self):
         """Handle GET requests."""

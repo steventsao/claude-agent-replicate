@@ -32,10 +32,14 @@ import {
   selectHasInitialLoad,
 } from '../store/imagesSlice';
 import { layoutNodes } from '../utils/nodePositioning';
-import { useDeleteImageMutation } from '../store/spacesApi';
+import { useDeleteImageMutation, useMoveImageMutation } from '../store/spacesApi';
 import SpaceSwitcher from './SpaceSwitcher';
 
 function ImageNode({ data, selected }) {
+  // Check if image is in root data folder (not in a space)
+  const isInRootFolder = data.path && !data.path.includes('/spaces/');
+  const canMoveToSpace = isInRootFolder && data.currentSpaceId !== 'default';
+
   return (
     <div style={{
       padding: '10px',
@@ -91,6 +95,29 @@ function ImageNode({ data, selected }) {
           {data.label}
         </div>
       )}
+      {canMoveToSpace && (
+        <button
+          onClick={(e) => {
+            e.stopPropagation();
+            data.onMove();
+          }}
+          style={{
+            marginTop: '8px',
+            padding: '6px 12px',
+            background: '#1a73e8',
+            color: 'white',
+            border: 'none',
+            borderRadius: '4px',
+            cursor: 'pointer',
+            fontSize: '12px',
+            fontWeight: '500',
+            width: '100%',
+          }}
+          title="Move this image to the current folder"
+        >
+          Move to current folder
+        </button>
+      )}
     </div>
   );
 }
@@ -121,6 +148,7 @@ function CanvasInner() {
   const autoFocusEnabled = import.meta.env.VITE_AUTO_FOCUS_NEW_IMAGES === 'true';
 
   const [deleteImage] = useDeleteImageMutation();
+  const [moveImage] = useMoveImageMutation();
 
   // Initial canvas state load - runs once on mount
   useEffect(() => {
@@ -161,6 +189,30 @@ function CanvasInner() {
       console.error('Failed to delete image:', error);
     }
   }, [deleteImage, currentSpaceId, dispatch]);
+
+  // Callback to move an image to current space
+  const handleMove = useCallback(async (imageId, imagePath) => {
+    try {
+      const result = await moveImage({
+        sourcePath: imagePath,
+        spaceId: currentSpaceId
+      }).unwrap();
+
+      // Update the image with new URL and path
+      dispatch(updateImage({
+        id: imageId,
+        changes: {
+          url: result.new_url,
+          path: result.new_path
+        }
+      }));
+
+      console.log(`Image moved to space: ${currentSpaceId}`);
+    } catch (error) {
+      console.error('Failed to move image:', error);
+      alert('Failed to move image to current folder');
+    }
+  }, [moveImage, currentSpaceId, dispatch]);
 
   // Callback to save the canvas
   const handleSave = useCallback(async () => {
@@ -237,7 +289,10 @@ function CanvasInner() {
     data: {
       url: image.url,
       label: image.label,
+      path: image.path,
+      currentSpaceId: currentSpaceId,
       onDeselect: () => handleDeselect(image.id),
+      onMove: () => handleMove(image.id, image.path),
     },
     selected: selectedIds.includes(image.id),
   }));

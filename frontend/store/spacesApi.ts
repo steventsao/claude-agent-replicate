@@ -61,6 +61,17 @@ export const spacesApi = createApi({
       }),
       invalidatesTags: [{ type: 'Spaces', id: 'LIST' }],
     }),
+    moveImage: build.mutation<{ success: boolean; new_url: string; new_path: string }, { sourcePath: string; spaceId: string }>({
+      query: ({ sourcePath, spaceId }) => ({
+        url: '/spaces/move-image',
+        method: 'POST',
+        body: { source_path: sourcePath, space_id: spaceId },
+      }),
+      invalidatesTags: (result, error, { spaceId }) => [
+        { type: 'Space', id: spaceId },
+        { type: 'Spaces', id: 'LIST' },
+      ],
+    }),
   }),
 });
 
@@ -70,4 +81,5 @@ export const {
   useListSpacesQuery,
   useDeleteImageMutation,
   useDeleteSpaceMutation,
+  useMoveImageMutation,
 } = spacesApi;

@@ -224,3 +224,52 @@ def delete_space(space_id: str) -> bool:
     import shutil
     shutil.rmtree(space_dir)
     return True
+
+
+def move_image_to_space(source_path: str, space_id: str) -> Optional[str]:
+    """
+    Move an image from the root data directory to a space directory.
+
+    Args:
+        source_path: Relative path from data root (e.g., "data/image.png")
+        space_id: Target space identifier
+
+    Returns:
+        New relative path if successful, None if source doesn't exist
+    """
+    import shutil
+
+    # Get the storage directory
+    storage_dir = get_storage_dir()
+
+    # Parse the source path - remove "data/" prefix if present
+    source_path_cleaned = source_path
+    if source_path.startswith("data/"):
+        source_path_cleaned = source_path[5:]
+    elif source_path.startswith("/data/"):
+        source_path_cleaned = source_path[6:]
+
+    # Get absolute source file path
+    source_file = storage_dir / source_path_cleaned
+
+    if not source_file.exists():
+        return None
+
+    # Get target space directory
+    space_dir = get_space_dir(space_id)
+
+    # Destination file path (same filename in space directory)
+    dest_file = space_dir / source_file.name
+
+    # Move the image file
+    shutil.move(str(source_file), str(dest_file))
+
+    # Also move metadata file if it exists
+    metadata_file = storage_dir / f"{source_file.stem}_metadata.json"
+    if metadata_file.exists():
+        dest_metadata = space_dir / metadata_file.name
+        shutil.move(str(metadata_file), str(dest_metadata))
+
+    # Return new relative path
+    storage_dir_name = os.environ.get("STORAGE_DIR", "data")
+    return f"{storage_dir_name}/spaces/{normalize_space_id(space_id)}/{dest_file.name}"

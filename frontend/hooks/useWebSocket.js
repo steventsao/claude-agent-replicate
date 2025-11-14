@@ -63,8 +63,13 @@ export function useWebSocket() {
           const existingNodes = imagesSelectors.selectAll(state);
           const position = calculateNodePosition(existingNodes);
 
+          // Extract path from URL (e.g., "http://localhost:8080/data/image.png" -> "data/image.png")
+          const urlObj = new URL(url);
+          const path = urlObj.pathname.substring(1); // Remove leading slash
+
           dispatch(addImage({
             url,
+            path,
             // label: 'Downloaded Image',
             position,
           }));
