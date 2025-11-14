@@ -44,6 +44,11 @@ The `--nostream` flag ensures pm2 prints historical logs and exits, preventing t
 import replicate
 import base64
 from pathlib import Path
+import sys
+
+# Setup path for skill scripts
+sys.path.insert(0, str(Path.cwd() / ".claude/skills/ai_models/scripts"))
+from download_replicate_output import download_replicate_output
 
 # Helper: Convert local/localhost files to base64 data URI
 def image_to_data_uri(image_path):
@@ -56,8 +61,6 @@ def image_to_data_uri(image_path):
     return f"data:image/{mime_type};base64,{b64_data}"
 
 # Image generation - ALWAYS save outputs
-from download_replicate_output import download_replicate_output
-
 output = replicate.run(
     "google/nano-banana",
     input={"prompt": "professional photo of red apple on wooden table"}
@@ -77,6 +80,9 @@ output = replicate.run(
         "aspect_ratio": "1:1"
     }
 )
+url = str(output.url) if hasattr(output, 'url') else str(output)
+result = download_replicate_output(url, "google/nano-banana", tag="blue")
+__result__ = f"✅ Edited and saved to: {result['local_path']}"
 
 # Image editing with LOCAL FILE (REQUIRED for localhost URLs)
 local_file = "/path/to/image.jpg"  # or downloads/someimage.png
@@ -89,15 +95,17 @@ output = replicate.run(
         "aspect_ratio": "1:1"
     }
 )
-__result__ = f"Edited: {output}"
+url = str(output.url) if hasattr(output, 'url') else str(output)
+result = download_replicate_output(url, "google/nano-banana", tag="blue")
+__result__ = f"✅ Edited and saved to: {result['local_path']}"
 ```
 
 ## Requirements
 
-- REPLICATE_API_TOKEN environment variable must be set (automatically injected by skill)
 - `replicate` Python package (install with `pip install replicate`)
+- Backend server automatically proxies all Replicate API calls and handles authentication
 
-**Note**: When using this skill in an Agent SDK context, the REPLICATE_API_TOKEN is automatically injected via the agent's environment configuration. The agent doesn't need to manually set it.
+**Note**: All Replicate API calls are automatically proxied through the backend server. The backend manages the API token securely - you don't need to configure anything.
 
 ## Code Execution Method
 
@@ -173,15 +181,17 @@ print(info['openapi_schema'])  # See the full OpenAPI schema
 **CRITICAL**: Use direct replicate.run() calls for image editing, NOT bash scripts:
 
 ```python
+
 import replicate
 from pathlib import Path
 import sys
 import base64
 from datetime import datetime
 
+
 # Add scripts to path for save_result
 sys.path.insert(0, str(Path.cwd() / ".claude/skills/ai_models/scripts"))
-from save_result import save_result
+from download_replicate_output import download_replicate_output
 
 # For PUBLIC URLs - use image_input directly
 output = replicate.run(
@@ -218,8 +228,9 @@ output = replicate.run(
 )
 
 # Save and display
-filepath = save_result(output, 'google/nano-banana', tag='blue_bg')
-__result__ = f"Image edited! URL: {output}\nSaved to: {filepath}"
+url = str(output.url) if hasattr(output, 'url') else str(output)
+result = download_replicate_output(url, 'google/nano-banana', tag='blue_bg')
+__result__ = f"✅ Image edited and saved to: {result['local_path']}"
 ```
 
 **Key points for image editing**:
@@ -236,11 +247,16 @@ __result__ = f"Image edited! URL: {output}\nSaved to: {filepath}"
 Execute a model with specific inputs using the Replicate SDK. Results are automatically saved:
 
 ```python
-import replicate
 
-# Run image generation model - ALWAYS save outputs
+import replicate
+from pathlib import Path
+import sys
+
+
+sys.path.insert(0, str(Path.cwd() / ".claude/skills/ai_models/scripts"))
 from download_replicate_output import download_replicate_output
 
+# Run image generation model - ALWAYS save outputs
 output = replicate.run(
     'google/nano-banana',
     input={
@@ -287,8 +303,16 @@ __result__ = f"✅ Generated and saved to: {result['local_path']}"
 Before running a model, get its info to understand required inputs:
 
 ```python
+
 import replicate
 import json
+from pathlib import Path
+import sys
+
+
+sys.path.insert(0, str(Path.cwd() / ".claude/skills/ai_models/scripts"))
+from download_replicate_output import download_replicate_output
+from get_model_info import get_model_info
 
 # 1. Get model info
 info = get_model_info('google/nano-banana')
@@ -301,7 +325,6 @@ output = replicate.run('google/nano-banana', input={
 })
 
 # 3. Save the output (REQUIRED)
-from download_replicate_output import download_replicate_output
 url = str(output.url) if hasattr(output, 'url') else str(output)
 result = download_replicate_output(url, 'google/nano-banana')
 
@@ -343,13 +366,19 @@ if files:
 replicate.run() blocks until completion. Results are auto-saved:
 
 ```python
+
 import replicate
+from pathlib import Path
+import sys
+
+
+sys.path.insert(0, str(Path.cwd() / ".claude/skills/ai_models/scripts"))
+from download_replicate_output import download_replicate_output
 
 # Run the model (blocks until complete)
 output = replicate.run('video-generation-model', input={'input': '...'})
 
 # Save the output (REQUIRED)
-from download_replicate_output import download_replicate_output
 url = str(output.url) if hasattr(output, 'url') else str(output)
 result = download_replicate_output(url, 'video-generation-model')
 __result__ = f"Generated and saved to: {result['local_path']}"
@@ -365,14 +394,20 @@ Common errors and solutions:
 
 ## Working with Results
 
-Model outputs vary by model type. Results are auto-saved to results/:
+Model outputs vary by model type. Results are auto-saved to data/:
 
 ```python
+
 import replicate
+from pathlib import Path
+import sys
+
+
+sys.path.insert(0, str(Path.cwd() / ".claude/skills/ai_models/scripts"))
+from download_replicate_output import download_replicate_output
 
 # Image generation - ALWAYS save outputs
 output = replicate.run('google/nano-banana', input={'prompt': '...'})
-from download_replicate_output import download_replicate_output
 url = str(output.url) if hasattr(output, 'url') else str(output)
 result = download_replicate_output(url, 'google/nano-banana')
 __result__ = f"Saved to: {result['local_path']}"

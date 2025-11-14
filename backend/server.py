@@ -40,6 +40,9 @@ except Exception as exc:
 # Load environment variables
 load_dotenv()
 
+# Configure Replicate SDK to use local proxy for all child processes
+os.environ["REPLICATE_BASE_URL"] = "http://localhost:8080/api/replicate"
+
 # Initialize Langfuse client
 try:
     langfuse_client = get_client()
@@ -74,6 +77,8 @@ class CORSHTTPRequestHandler(SimpleHTTPRequestHandler):
             self._handle_delete_image()
         elif self.path == '/api/spaces/delete':
             self._handle_delete_space()
+        elif self.path.startswith('/api/replicate/'):
+            self._handle_replicate_proxy('POST')
         else:
             self.send_error(404)
 
@@ -222,6 +227,48 @@ class CORSHTTPRequestHandler(SimpleHTTPRequestHandler):
         except Exception as e:
             self.send_error(500, f'Delete failed: {str(e)}')
 
+    def _handle_replicate_proxy(self, method):
+        """Proxy all Replicate API calls with server's token."""
+        import requests
+
+        try:
+            # Get token from server environment
+            token = os.environ.get("REPLICATE_API_TOKEN")
+            if not token:
+                self.send_error(500, 'REPLICATE_API_TOKEN not configured on server')
+                return
+
+            # Extract Replicate API path (remove /api/replicate prefix)
+            # Path is like: /api/replicate/v1/models/... → /v1/models/...
+            api_path = self.path.replace('/api/replicate/', '')
+            url = f"https://api.replicate.com/{api_path}"
+
+            print(f"Proxying {method} to: {url}")
+            print(f"Token present: {bool(token)}, length: {len(token) if token else 0}")
+
+            headers = {
+                'Authorization': f'Token {token}',
+                'Content-Type': 'application/json'
+            }
+
+            # Make request to Replicate
+            if method == 'POST':
+                content_length = int(self.headers.get('content-length', 0))
+                body = self.rfile.read(content_length)
+                data = json.loads(body) if body else {}
+                response = requests.post(url, json=data, headers=headers)
+            else:  # GET
+                response = requests.get(url, headers=headers)
+
+            # Return Replicate's response
+            self.send_response(response.status_code)
+            self.send_header('Content-Type', 'application/json')
+            self.end_headers()
+            self.wfile.write(response.content)
+
+        except Exception as e:
+            self.send_error(500, f'Replicate proxy error: {str(e)}')
+
     def do_GET(self):
         """Handle GET requests."""
         # API routes
@@ -231,6 +278,9 @@ class CORSHTTPRequestHandler(SimpleHTTPRequestHandler):
         elif self.path.startswith('/api/spaces/load/'):
             space_id = self.path.split('/api/spaces/load/')[-1]
             self._handle_load_canvas(space_id)
+            return
+        elif self.path.startswith('/api/replicate/'):
+            self._handle_replicate_proxy('GET')
             return
 
         # Static file routes
