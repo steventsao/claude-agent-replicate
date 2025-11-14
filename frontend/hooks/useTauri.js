@@ -23,8 +23,7 @@ export const openFolderDialog = async () => {
   }
 
   try {
-    const { invoke } = window.__TAURI_INTERNALS__.invoke;
-    const result = await invoke('open_folder_dialog');
+    const result = await window.__TAURI_INTERNALS__.invoke('open_folder_dialog');
     return result;
   } catch (error) {
     console.error('Error opening folder dialog:', error);
@@ -39,8 +38,7 @@ export const readDirectory = async (path) => {
   }
 
   try {
-    const { invoke } = window.__TAURI_INTERNALS__.invoke;
-    const result = await invoke('read_directory', { path });
+    const result = await window.__TAURI_INTERNALS__.invoke('read_directory', { path });
     return result;
   } catch (error) {
     console.error('Error reading directory:', error);
@@ -55,11 +53,25 @@ export const readFileContent = async (path) => {
   }
 
   try {
-    const { invoke } = window.__TAURI_INTERNALS__.invoke;
-    const result = await invoke('read_file_content', { path });
+    const result = await window.__TAURI_INTERNALS__.invoke('read_file_content', { path });
     return result;
   } catch (error) {
     console.error('Error reading file:', error);
+    return null;
+  }
+};
+
+export const readImageAsDataUrl = async (path) => {
+  if (!isTauri()) {
+    console.warn('Tauri is not available');
+    return null;
+  }
+
+  try {
+    const result = await window.__TAURI_INTERNALS__.invoke('read_image_as_data_url', { path });
+    return result;
+  } catch (error) {
+    console.error('Error reading image:', error);
     return null;
   }
 };
@@ -71,8 +83,7 @@ export const writeFileContent = async (path, content) => {
   }
 
   try {
-    const { invoke } = window.__TAURI_INTERNALS__.invoke;
-    await invoke('write_file_content', { path, content });
+    await window.__TAURI_INTERNALS__.invoke('write_file_content', { path, content });
     return true;
   } catch (error) {
     console.error('Error writing file:', error);
@@ -87,8 +98,7 @@ export const getFileMetadata = async (path) => {
   }
 
   try {
-    const { invoke } = window.__TAURI_INTERNALS__.invoke;
-    const result = await invoke('get_file_metadata', { path });
+    const result = await window.__TAURI_INTERNALS__.invoke('get_file_metadata', { path });
     return result;
   } catch (error) {
     console.error('Error getting file metadata:', error);

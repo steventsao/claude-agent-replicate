@@ -40,6 +40,18 @@
   cursor: not-allowed;
 }
 
+.file-explorer-error {
+  padding: 12px;
+  background-color: #5a1d1d;
+  border: 1px solid #be1100;
+  border-left: 4px solid #f48771;
+  margin: 12px;
+  border-radius: 4px;
+  color: #f48771;
+  font-size: 12px;
+  line-height: 1.5;
+}
+
 .file-explorer-path {
   padding: 8px 12px;
   background-color: #2d2d30;

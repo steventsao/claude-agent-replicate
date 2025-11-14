@@ -1,7 +1,6 @@
 use serde::{Deserialize, Serialize};
 use std::fs;
 use std::path::PathBuf;
-use tauri::Manager;
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct FileNode {
@@ -20,20 +19,43 @@ async fn open_folder_dialog(app: tauri::AppHandle) -> Result<Option<String>, Str
         .blocking_pick_folder();
 
     match folder {
-        Some(path) => Ok(Some(path.to_string_lossy().to_string())),
+        Some(path) => Ok(Some(path.to_string())),
         None => Ok(None),
     }
 }
 
 #[tauri::command]
 async fn read_directory(path: String) -> Result<Vec<FileNode>, String> {
-    read_dir_recursive(&PathBuf::from(&path), false)
+    read_dir_recursive(&PathBuf::from(&path), true)
         .map_err(|e| e.to_string())
 }
 
 #[tauri::command]
 async fn read_file_content(path: String) -> Result<String, String> {
     fs::read_to_string(&path).map_err(|e| e.to_string())
+}
+
+#[tauri::command]
+async fn read_image_as_data_url(path: String) -> Result<String, String> {
+    let bytes = fs::read(&path).map_err(|e| e.to_string())?;
+
+    // Determine MIME type from extension
+    let mime_type = if path.ends_with(".png") {
+        "image/png"
+    } else if path.ends_with(".jpg") || path.ends_with(".jpeg") {
+        "image/jpeg"
+    } else if path.ends_with(".gif") {
+        "image/gif"
+    } else if path.ends_with(".webp") {
+        "image/webp"
+    } else if path.ends_with(".bmp") {
+        "image/bmp"
+    } else {
+        "application/octet-stream"
+    };
+
+    let base64 = base64::Engine::encode(&base64::engine::general_purpose::STANDARD, &bytes);
+    Ok(format!("data:{};base64,{}", mime_type, base64))
 }
 
 #[tauri::command]
@@ -122,6 +144,7 @@ pub fn run() {
             open_folder_dialog,
             read_directory,
             read_file_content,
+            read_image_as_data_url,
             write_file_content,
             get_file_metadata,
         ])

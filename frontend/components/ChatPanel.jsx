@@ -125,12 +125,14 @@ function ChatPanel({ status, onSendMessage, onClearChat }) {
       </button>
 
       <div className="chat-header">
-        <h2>Claude Agent + Replicate</h2>
         <div className="header-controls">
-          <button onClick={onClearChat} className="clear-button">
-            Clear Chat
+          <button onClick={onClearChat} className="clear-button" title="Clear chat">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M3 6h18"></path>
+              <path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"></path>
+              <path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"></path>
+            </svg>
           </button>
-          <div className={`status ${status}`}>{status}</div>
         </div>
       </div>
 
@@ -233,8 +235,10 @@ function ChatPanel({ status, onSendMessage, onClearChat }) {
             rows="3"
             disabled={status !== 'connected'}
           />
-          <button type="submit" disabled={status !== 'connected' || !input.trim()}>
-            Send
+          <button type="submit" disabled={status !== 'connected' || !input.trim()} aria-label="Send message">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M12 4l-1.41 1.41L16.17 11H4v2h12.17l-5.58 5.59L12 20l8-8z"/>
+            </svg>
           </button>
         </div>
       </form>

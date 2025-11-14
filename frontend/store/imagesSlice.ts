@@ -31,6 +31,7 @@ interface ImagesState extends EntityState<ImageNode, string> {
   currentSpaceId: string;
   lastSavedSnapshot: string | null; // JSON string of last saved state for comparison
   hasInitialLoad: boolean; // Track if initial canvas state has been loaded
+  focusNodeByPath: string | null; // File path to focus on in canvas
 }
 
 const initialState: ImagesState = imagesAdapter.getInitialState({
@@ -47,6 +48,7 @@ const initialState: ImagesState = imagesAdapter.getInitialState({
   currentSpaceId: 'default',
   lastSavedSnapshot: null,
   hasInitialLoad: false,
+  focusNodeByPath: null,
 });
 
 // Thunk to load space from file system
@@ -174,6 +176,10 @@ const imagesSlice = createSlice({
     setLastSavedSnapshot: (state, action: PayloadAction<string>) => {
       state.lastSavedSnapshot = action.payload;
     },
+
+    setFocusNodeByPath: (state, action: PayloadAction<string | null>) => {
+      state.focusNodeByPath = action.payload;
+    },
   },
   extraReducers: (builder) => {
     builder
@@ -231,6 +237,7 @@ export const {
   clearSelection,
   setCurrentSpace,
   setLastSavedSnapshot,
+  setFocusNodeByPath,
 } = imagesSlice.actions;
 
 // Export selectors from adapter
@@ -254,6 +261,7 @@ export const selectSelectedImages = (state: any) => {
 export const selectCurrentSpaceId = (state: any) => state.images.currentSpaceId;
 export const selectLastSavedSnapshot = (state: any) => state.images.lastSavedSnapshot;
 export const selectHasInitialLoad = (state: any) => state.images.hasInitialLoad;
+export const selectFocusNodeByPath = (state: any) => state.images.focusNodeByPath;
 
 // Computed selector for isDirty based on deep comparison
 export const selectIsDirty = (state: any) => {
