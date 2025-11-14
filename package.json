@@ -11,7 +11,10 @@
     "test:ui": "playwright test --ui",
     "backend": "python3 backend/server.py",
     "dev:stack": "concurrently -k \"npm run backend\" \"npm run dev\"",
-    "dev:pm2": "pm2 start ecosystem.config.js"
+    "dev:pm2": "pm2 start ecosystem.config.js",
+    "tauri": "tauri",
+    "tauri:dev": "concurrently -k \"npm run backend\" \"tauri dev\"",
+    "tauri:build": "tauri build"
   },
   "repository": {
     "type": "git",
@@ -38,6 +41,8 @@
   "devDependencies": {
     "@playwright/test": "^1.56.1",
     "@redux-devtools/extension": "^3.3.0",
+    "@tauri-apps/api": "^2.9.0",
+    "@tauri-apps/cli": "^2.9.4",
     "concurrently": "^9.1.2",
     "playwright": "^1.56.1"
   }

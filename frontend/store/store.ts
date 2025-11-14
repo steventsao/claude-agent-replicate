@@ -2,6 +2,7 @@ import { configureStore } from '@reduxjs/toolkit';
 import imagesReducer from './imagesSlice';
 import messagesReducer from './messagesSlice';
 import websocketReducer from './websocketSlice';
+import fileExplorerReducer from './fileExplorerSlice';
 import { spacesApi } from './spacesApi';
 
 export const store = configureStore({
@@ -9,6 +10,7 @@ export const store = configureStore({
     images: imagesReducer,
     messages: messagesReducer,
     websocket: websocketReducer,
+    fileExplorer: fileExplorerReducer,
     [spacesApi.reducerPath]: spacesApi.reducer,
   },
   middleware: (getDefaultMiddleware) =>
