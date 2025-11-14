@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
+import { FolderOpen, Folder, ChevronRight, ChevronDown, File, MapPin, PanelLeftClose } from 'lucide-react';
 import {
   setOpenedFolder,
   setFiles,
@@ -84,7 +85,11 @@ const FileTreeNode = ({ node, level = 0, onFileClick }) => {
         onClick={handleClick}
       >
         <span className="file-icon">
-          {node.is_dir ? (isExpanded ? '📂' : '📁') : '📄'}
+          {node.is_dir ? (
+            isExpanded ? <ChevronDown size={14} /> : <ChevronRight size={14} />
+          ) : (
+            <File size={14} />
+          )}
         </span>
         <span className="file-name">{node.name}</span>
       </div>
@@ -110,6 +115,7 @@ const FileExplorer = ({ onFileSelect }) => {
   const images = useSelector(imagesSelectors.selectAll);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
+  const [isCollapsed, setIsCollapsed] = useState(false);
 
   const handleOpenFolder = async () => {
     setLoading(true);
@@ -175,16 +181,31 @@ const FileExplorer = ({ onFileSelect }) => {
   }
 
   return (
-    <div className="file-explorer">
-      <div className="file-explorer-header">
-        <button
-          className="open-folder-button"
-          onClick={handleOpenFolder}
-          disabled={loading}
-        >
-          {loading ? 'Loading...' : '📁 Open Folder'}
-        </button>
-      </div>
+    <>
+      <div
+        className={`file-explorer ${isCollapsed ? 'collapsed' : ''}`}
+        onClick={isCollapsed ? () => setIsCollapsed(false) : undefined}
+      >
+        {isCollapsed && (
+          <ChevronRight className="file-explorer-expand-icon" size={20} />
+        )}
+        <div className="file-explorer-header">
+          <button
+            className="open-folder-icon-button"
+            onClick={handleOpenFolder}
+            disabled={loading}
+            title={loading ? 'Loading...' : 'Open Folder'}
+          >
+            <FolderOpen size={18} />
+          </button>
+          <button
+            className="minimize-button"
+            onClick={() => setIsCollapsed(!isCollapsed)}
+            title="Collapse sidebar"
+          >
+            <PanelLeftClose size={18} />
+          </button>
+        </div>
       {error && (
         <div className="file-explorer-error">
           {error}
@@ -192,7 +213,9 @@ const FileExplorer = ({ onFileSelect }) => {
       )}
       {openedFolder && (
         <div className="file-explorer-path">
-          <span className="path-label">📍</span>
+          <span className="path-label">
+            <MapPin size={14} />
+          </span>
           <span className="path-text" title={openedFolder}>
             {openedFolder.split('/').pop() || openedFolder}
           </span>
@@ -213,7 +236,8 @@ const FileExplorer = ({ onFileSelect }) => {
           </div>
         )}
       </div>
-    </div>
+      </div>
+    </>
   );
 };
 

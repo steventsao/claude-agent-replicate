@@ -115,17 +115,23 @@ function ChatPanel({ status, onSendMessage, onClearChat }) {
   };
 
   return (
-    <div className={`chat-panel ${isCollapsed ? 'collapsed' : ''}`}>
-      <button
-        className="collapse-toggle"
-        onClick={() => setIsCollapsed(!isCollapsed)}
-        title={isCollapsed ? 'Expand chat' : 'Collapse chat'}
+    <>
+      <div
+        className={`chat-panel ${isCollapsed ? 'collapsed' : ''}`}
+        onClick={() => isCollapsed && setIsCollapsed(false)}
       >
-        {isCollapsed ? '«' : '»'}
-      </button>
-
-      <div className="chat-header">
+        {isCollapsed && (
+          <svg className="chat-bubble" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <path d="m9 18 6-6-6-6"/>
+          </svg>
+        )}
+        <div className="chat-header">
         <div className="header-controls">
+          <button onClick={() => setIsCollapsed(!isCollapsed)} className="minimize-button" title={isCollapsed ? 'Expand chat' : 'Minimize chat'}>
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M5 12h14"></path>
+            </svg>
+          </button>
           <button onClick={onClearChat} className="clear-button" title="Clear chat">
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
               <path d="M3 6h18"></path>
@@ -242,7 +248,8 @@ function ChatPanel({ status, onSendMessage, onClearChat }) {
           </button>
         </div>
       </form>
-    </div>
+      </div>
+    </>
   );
 }
 
